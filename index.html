@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ML Learning Hub - Học Machine Learning & Generative AI từ A-Z</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- KaTeX for Math Equations -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Theme CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <!-- Brand Header -->
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/30">
+          AI
+        </div>
+        <div>
+          <h1 class="font-bold text-sm tracking-wide text-slate-100">ML LEARNING HUB</h1>
+          <p class="text-[10px] text-blue-400 font-semibold tracking-wider uppercase">Roadmap 2026 Edition</p>
+        </div>
+      </div>
+      <button id="theme-toggle-btn" class="p-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition" title="Đổi giao diện Sáng / Tối">
+        <i id="theme-toggle-icon" data-lucide="sun" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Progress Tracker -->
+    <div class="p-4 border-b border-slate-800 bg-slate-900/40">
+      <div class="flex justify-between items-center text-xs mb-1.5 font-medium">
+        <span class="text-slate-400">Tiến độ học tập:</span>
+        <span id="progress-text" class="text-emerald-400 font-bold">0% Hoàn thành</span>
+      </div>
+      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+        <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all duration-500" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Search Input -->
+    <div class="p-3 border-b border-slate-800">
+      <div class="relative">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
+        <input type="text" id="sidebar-search" placeholder="Tìm kiếm bài học, chủ đề..." class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+      </div>
+    </div>
+
+    <!-- Module & Lesson List -->
+    <div id="sidebar-modules" class="flex-1 overflow-y-auto p-3 space-y-4">
+      <!-- Injected by app.js -->
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="p-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400 bg-slate-900/60">
+      <button id="btn-reset-progress" class="text-rose-400 hover:underline flex items-center gap-1">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Đặt lại tiến độ
+      </button>
+      <span>Offline Ready</span>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <main class="main-wrapper">
+    <!-- Top Header Bar -->
+    <header class="sticky top-0 z-30 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <button id="mobile-sidebar-toggle" class="lg:hidden p-2 rounded-lg bg-slate-800 text-slate-300">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div>
+          <span id="current-module-title" class="text-xs text-blue-400 font-semibold uppercase tracking-wider">Module 1</span>
+          <h2 id="current-lesson-title" class="text-base lg:text-lg font-bold text-slate-100">Bài 1: Toán học nền tảng</h2>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto">
+        <button class="nav-tab active" data-tab="theory">
+          <i data-lucide="book-open" class="w-4 h-4"></i> Lý thuyết & Minh họa
+        </button>
+        <button class="nav-tab" data-tab="playground">
+          <i data-lucide="terminal" class="w-4 h-4"></i> Thực hành Code Python
+        </button>
+        <button class="nav-tab" data-tab="exercise">
+          <i data-lucide="award" class="w-4 h-4"></i> Trắc nghiệm & Thử thách
+        </button>
+        <button class="nav-tab" data-tab="sandbox">
+          <i data-lucide="flask-conical" class="w-4 h-4"></i> Phòng Thí nghiệm AI
+        </button>
+        <button class="nav-tab" data-tab="glossary">
+          <i data-lucide="help-circle" class="w-4 h-4"></i> Từ điển Thuật ngữ
+        </button>
+      </nav>
+    </header>
+
+    <!-- Page Body Container -->
+    <div class="p-6 lg:p-8 max-w-6xl mx-auto w-full flex-1">
+      <p id="current-lesson-summary" class="text-sm text-slate-400 mb-6 pb-4 border-b border-slate-800"></p>
+
+      <!-- TAB 1: THEORY & CONCEPTS -->
+      <section id="pane-theory" class="tab-pane space-y-6">
+        <div id="tab-theory-content" class="prose prose-invert max-w-none text-slate-300 space-y-4 leading-relaxed">
+          <!-- Injected via curriculum.js -->
+        </div>
+
+        <!-- Embedded Interactive Visualizer (Contextual) -->
+        <div id="embedded-visualizer-area" class="mt-8"></div>
+      </section>
+
+      <!-- TAB 2: IN-BROWSER PYTHON PLAYGROUND -->
+      <section id="pane-playground" class="tab-pane hidden space-y-6">
+        <div class="p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
+                <i data-lucide="code" class="w-5 h-5 text-blue-400"></i> Môi trường Thực thi Python trực tiếp (WebAssembly)
+              </h3>
+              <p class="text-xs text-slate-400 mt-1">Chạy mã Python với NumPy, Pandas, Scikit-learn ngay trên trình duyệt mà không cần cài đặt môi trường.</p>
+            </div>
+            <button id="btn-run-code" class="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-lg flex items-center gap-2 shadow-lg shadow-blue-600/30 transition">
+              <i data-lucide="play" class="w-4 h-4"></i> ▶ Chạy Mã Nguồn (Run Code)
+            </button>
+          </div>
+
+          <!-- Code Editor -->
+          <div class="code-editor-container mb-4">
+            <div class="bg-slate-950 px-4 py-2 border-b border-slate-800 flex justify-between items-center text-xs text-slate-400 font-mono">
+              <span>main.py</span>
+              <span>Python 3.12 (Pyodide WASM)</span>
+            </div>
+            <textarea id="code-input" class="code-textarea" spellcheck="false"></textarea>
+          </div>
+
+          <!-- Output Console -->
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-center text-xs text-slate-400">
+              <span class="font-semibold">Bảng điều khiển kết quả (Console Output):</span>
+            </div>
+            <div id="console-output" class="console-output">>>> Nhấn 'Chạy Mã Nguồn' để thực thi chương trình.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: QUIZZES & CODING CHALLENGES -->
+      <section id="pane-exercise" class="tab-pane hidden space-y-6">
+        <div id="tab-exercise-content">
+          <!-- Injected via app.js -->
+        </div>
+      </section>
+
+      <!-- TAB 4: SANDBOX & ALL VISUALIZERS -->
+      <section id="pane-sandbox" class="tab-pane hidden space-y-8">
+        <div class="mb-4">
+          <h3 class="text-xl font-bold text-slate-100">🎮 Phòng Thí nghiệm Trực quan Toàn diện (Interactive AI Sandbox)</h3>
+          <p class="text-xs text-slate-400 mt-1">Tương tác trực tiếp với các mô hình toán học, cơ chế chú ý và luồng xử lý RAG.</p>
+        </div>
+
+        <div id="sandbox-gd-viz"></div>
+        <div id="sandbox-att-viz"></div>
+        <div id="sandbox-rag-viz"></div>
+      </section>
+
+      <!-- TAB 5: A-Z GLOSSARY -->
+      <section id="pane-glossary" class="tab-pane hidden space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+          <div>
+            <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+              <i data-lucide="book-marked" class="w-5 h-5 text-indigo-400"></i> Từ điển Thuật ngữ Machine Learning & GenAI (A-Z)
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">Giải thích chi tiết, ngắn gọn và chuẩn xác 100% thuật ngữ chuyên môn kèm ví dụ.</p>
+          </div>
+          <div class="w-full sm:w-64">
+            <input type="text" id="glossary-search" placeholder="Tra cứu thuật ngữ..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          </div>
+        </div>
+
+        <div id="glossary-list">
+          <!-- Injected via app.js -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Application Scripts -->
+  <script src="assets/js/curriculum.js"></script>
+  <script src="assets/js/exercises.js"></script>
+  <script src="assets/js/visualizers.js"></script>
+  <script src="assets/js/runner.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
