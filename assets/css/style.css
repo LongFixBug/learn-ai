@@ -178,6 +178,110 @@ body {
   border: 1px solid #1e293b;
 }
 
+/* Robust Typography for Theory Content */
+#tab-theory-content {
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+#tab-theory-content h2, 
+#tab-theory-content h3, 
+#tab-theory-content h4 {
+  color: #f8fafc;
+  font-weight: 700;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+#tab-theory-content h2 {
+  font-size: 1.4rem;
+  color: #60a5fa;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 0.5rem;
+}
+
+#tab-theory-content h3 {
+  font-size: 1.15rem;
+  color: #93c5fd;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+  padding-bottom: 0.35rem;
+}
+
+#tab-theory-content h4 {
+  font-size: 1rem;
+  color: #a5b4fc;
+}
+
+#tab-theory-content p {
+  color: #cbd5e1;
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+#tab-theory-content ul, 
+#tab-theory-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  color: #cbd5e1;
+  list-style-type: disc;
+}
+
+#tab-theory-content ol {
+  list-style-type: decimal;
+}
+
+#tab-theory-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+#tab-theory-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.85rem;
+  background-color: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#tab-theory-content th, 
+#tab-theory-content td {
+  border: 1px solid #334155;
+  padding: 0.75rem 1rem;
+}
+
+#tab-theory-content th {
+  background-color: #1e293b;
+  color: #f1f5f9;
+  font-weight: 600;
+  text-align: left;
+}
+
+#tab-theory-content tr:nth-child(even) {
+  background-color: rgba(30, 41, 59, 0.3);
+}
+
+#tab-theory-content code {
+  background-color: #0d1117;
+  color: #38bdf8;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+  border: 1px solid #1e293b;
+  font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+#tab-theory-content pre {
+  background-color: #0d1117;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
 /* Terminology Highlight (Careful Mentor Rule) */
 .term-highlight {
   color: #60a5fa;

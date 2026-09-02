@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ML Learning Hub - Học Machine Learning & Generative AI từ A-Z</title>
   
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind CSS with Typography Plugin -->
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
   
   <!-- KaTeX for Math Equations -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -16,8 +16,8 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Custom Theme CSS -->
-  <link rel="stylesheet" href="assets/css/style.css">
+  <!-- Custom Theme CSS with Cache Busting -->
+  <link rel="stylesheet" href="assets/css/style.css?v=20260902_2041">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen">
 
@@ -112,7 +112,7 @@
 
       <!-- TAB 1: THEORY & CONCEPTS -->
       <section id="pane-theory" class="tab-pane space-y-6">
-        <div id="tab-theory-content" class="prose prose-invert max-w-none text-slate-300 space-y-4 leading-relaxed">
+        <div id="tab-theory-content" class="space-y-4">
           <!-- Injected via curriculum.js -->
         </div>
 
@@ -138,34 +138,40 @@
           <!-- Code Editor -->
           <div class="code-editor-container mb-4">
             <div class="bg-slate-950 px-4 py-2 border-b border-slate-800 flex justify-between items-center text-xs text-slate-400 font-mono">
-              <span>main.py</span>
-              <span>Python 3.12 (Pyodide WASM)</span>
+              <span>main.py (Trình soạn thảo mã)</span>
+              <span class="text-emerald-400 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span> Pyodide WebAssembly Engine
+              </span>
             </div>
             <textarea id="code-input" class="code-textarea" spellcheck="false"></textarea>
           </div>
 
-          <!-- Output Console -->
-          <div class="space-y-1.5">
-            <div class="flex justify-between items-center text-xs text-slate-400">
-              <span class="font-semibold">Bảng điều khiển kết quả (Console Output):</span>
+          <!-- Console Output -->
+          <div>
+            <div class="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-2">
+              <i data-lucide="terminal" class="w-4 h-4 text-sky-400"></i> Kết quả thực thi Console Output:
             </div>
-            <div id="console-output" class="console-output">>>> Nhấn 'Chạy Mã Nguồn' để thực thi chương trình.</div>
+            <div id="console-output" class="console-output font-mono">
+              >>> Nhấn nút "Chạy Mã Nguồn" ở góc trên để biên dịch và thực thi Python...
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- TAB 3: QUIZZES & CODING CHALLENGES -->
+      <!-- TAB 3: EXERCISES & QUIZZES -->
       <section id="pane-exercise" class="tab-pane hidden space-y-6">
         <div id="tab-exercise-content">
-          <!-- Injected via app.js -->
+          <!-- Injected via exercises.js & app.js -->
         </div>
       </section>
 
-      <!-- TAB 4: SANDBOX & ALL VISUALIZERS -->
+      <!-- TAB 4: INTERACTIVE AI SANDBOX -->
       <section id="pane-sandbox" class="tab-pane hidden space-y-8">
-        <div class="mb-4">
-          <h3 class="text-xl font-bold text-slate-100">🎮 Phòng Thí nghiệm Trực quan Toàn diện (Interactive AI Sandbox)</h3>
-          <p class="text-xs text-slate-400 mt-1">Tương tác trực tiếp với các mô hình toán học, cơ chế chú ý và luồng xử lý RAG.</p>
+        <div>
+          <h3 class="text-xl font-bold text-slate-100 flex items-center gap-2 mb-2">
+            <i data-lucide="sparkles" class="w-6 h-6 text-purple-400"></i> Phòng Thí nghiệm AI Tương tác Trực quan
+          </h3>
+          <p class="text-sm text-slate-400">Trực quan hóa sinh động các thuật toán cốt lõi trong AI/ML/DL để hiểu sâu cơ chế toán học đằng sau.</p>
         </div>
 
         <div id="sandbox-gd-viz"></div>
@@ -194,11 +200,11 @@
     </div>
   </main>
 
-  <!-- Application Scripts -->
-  <script src="assets/js/curriculum.js"></script>
-  <script src="assets/js/exercises.js"></script>
-  <script src="assets/js/visualizers.js"></script>
-  <script src="assets/js/runner.js"></script>
-  <script src="assets/js/app.js"></script>
+  <!-- Application Scripts with Cache-Busting Version Query -->
+  <script src="assets/js/curriculum.js?v=20260902_2041"></script>
+  <script src="assets/js/exercises.js?v=20260902_2041"></script>
+  <script src="assets/js/visualizers.js?v=20260902_2041"></script>
+  <script src="assets/js/runner.js?v=20260902_2041"></script>
+  <script src="assets/js/app.js?v=20260902_2041"></script>
 </body>
 </html>

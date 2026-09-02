@@ -1,15 +1,27 @@
-// ML Learning Hub - Central Application Controller
-document.addEventListener("DOMContentLoaded", () => {
+// ML Learning Hub - Bulletproof Central Application Controller
+(function() {
   const App = {
     currentLessonId: "lesson-dl-ch1",
     currentTab: "theory",
-    completedLessons: JSON.parse(localStorage.getItem("ml_hub_completed") || "[]"),
-    theme: localStorage.getItem("ml_hub_theme") || "dark",
+    completedLessons: [],
+    theme: "dark",
 
     init() {
+      try {
+        this.completedLessons = JSON.parse(localStorage.getItem("ml_hub_completed") || "[]");
+      } catch (e) {
+        this.completedLessons = [];
+      }
+
+      try {
+        this.theme = localStorage.getItem("ml_hub_theme") || "dark";
+      } catch (e) {
+        this.theme = "dark";
+      }
+
       this.applyTheme();
-      
-      // Khởi tạo bài học đầu tiên từ danh sách giáo trình
+
+      // Xác định bài học đầu tiên trong giáo trình
       if (window.ML_CURRICULUM && window.ML_CURRICULUM.length > 0 && window.ML_CURRICULUM[0].lessons.length > 0) {
         this.currentLessonId = window.ML_CURRICULUM[0].lessons[0].id;
       }
@@ -22,31 +34,37 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     applyTheme() {
-      document.documentElement.setAttribute("data-theme", this.theme);
-      const themeIcon = document.getElementById("theme-toggle-icon");
-      if (themeIcon) {
-        themeIcon.setAttribute("data-lucide", this.theme === "dark" ? "sun" : "moon");
+      try {
+        document.documentElement.setAttribute("data-theme", this.theme);
+        const themeIcon = document.getElementById("theme-toggle-icon");
+        if (themeIcon) {
+          themeIcon.setAttribute("data-lucide", this.theme === "dark" ? "sun" : "moon");
+        }
+        if (window.lucide) window.lucide.createIcons();
+      } catch (e) {
+        console.warn("Theme apply warning:", e);
       }
-      if (window.lucide) window.lucide.createIcons();
     },
 
     toggleTheme() {
       this.theme = this.theme === "dark" ? "light" : "dark";
-      localStorage.setItem("ml_hub_theme", this.theme);
+      try {
+        localStorage.setItem("ml_hub_theme", this.theme);
+      } catch (e) {}
       this.applyTheme();
     },
 
     renderSidebar(searchQuery = "") {
       const container = document.getElementById("sidebar-modules");
-      if (!container) return;
+      if (!container || !window.ML_CURRICULUM) return;
 
-      const query = searchQuery.toLowerCase().trim();
+      const query = (searchQuery || "").toLowerCase().trim();
       let html = "";
 
       window.ML_CURRICULUM.forEach((module) => {
         const filteredLessons = module.lessons.filter(l => 
           l.title.toLowerCase().includes(query) || 
-          l.summary.toLowerCase().includes(query)
+          (l.summary && l.summary.toLowerCase().includes(query))
         );
 
         if (query && filteredLessons.length === 0) return;
@@ -83,7 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       container.innerHTML = html;
-      if (window.lucide) window.lucide.createIcons();
+      if (window.lucide) {
+        try { window.lucide.createIcons(); } catch (e) {}
+      }
     },
 
     findLesson(lessonId) {
@@ -93,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
           if (l.id === lessonId) return { module: m, lesson: l };
         }
       }
-      // Tự động chọn bài đầu tiên nếu không tìm thấy ID cũ
       if (window.ML_CURRICULUM.length > 0 && window.ML_CURRICULUM[0].lessons.length > 0) {
         return { module: window.ML_CURRICULUM[0], lesson: window.ML_CURRICULUM[0].lessons[0] };
       }
@@ -107,67 +126,88 @@ document.addEventListener("DOMContentLoaded", () => {
       const { module, lesson } = data;
       this.currentLessonId = lesson.id;
 
-      // Cập nhật tiêu đề trang
-      const modTitleEl = document.getElementById("current-module-title");
-      const lesTitleEl = document.getElementById("current-lesson-title");
-      const lesSummEl = document.getElementById("current-lesson-summary");
+      // 1. Cập nhật Tiêu đề & Tóm tắt
+      try {
+        const modTitleEl = document.getElementById("current-module-title");
+        const lesTitleEl = document.getElementById("current-lesson-title");
+        const lesSummEl = document.getElementById("current-lesson-summary");
 
-      if (modTitleEl) modTitleEl.innerText = module.title;
-      if (lesTitleEl) lesTitleEl.innerText = lesson.title;
-      if (lesSummEl) lesSummEl.innerText = lesson.summary;
+        if (modTitleEl) modTitleEl.innerText = module.title;
+        if (lesTitleEl) lesTitleEl.innerText = lesson.title;
+        if (lesSummEl) lesSummEl.innerText = lesson.summary || "";
+      } catch (e) {
+        console.error("Error updating titles:", e);
+      }
 
-      // Cập nhật Nội dung Lý thuyết
+      // 2. Cập nhật Nội dung Lý thuyết
       const theoryContentEl = document.getElementById("tab-theory-content");
       if (theoryContentEl) {
         theoryContentEl.innerHTML = lesson.content;
       }
 
-      // Nhúng bộ mô phỏng tương tác phù hợp với bài học
-      const visualizerArea = document.getElementById("embedded-visualizer-area");
-      if (visualizerArea) {
-        visualizerArea.innerHTML = "";
-        if (lesson.id === "lesson-dl-ch1" || lesson.id === "lesson-sup-reg") {
-          visualizerArea.innerHTML = `<div id="lesson-gd-viz"></div>`;
-          window.MLVisualizers.initGradientDescent("lesson-gd-viz");
-        } else if (lesson.id === "lesson-dl-ch5" || lesson.id === "lesson-transformer-models") {
-          visualizerArea.innerHTML = `<div id="lesson-att-viz"></div>`;
-          window.MLVisualizers.initAttentionVisualizer("lesson-att-viz");
-        } else if (lesson.id === "lesson-genai-full") {
-          visualizerArea.innerHTML = `<div id="lesson-rag-viz"></div>`;
-          window.MLVisualizers.initRAGSimulator("lesson-rag-viz");
+      // 3. Render KaTeX Math
+      if (window.renderMathInElement && theoryContentEl) {
+        try {
+          window.renderMathInElement(theoryContentEl, {
+            delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "$", right: "$", display: false}
+            ],
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn("KaTeX render notice:", e);
         }
       }
 
-      // Cập nhật Trình soạn thảo Code Playground
-      const codeArea = document.getElementById("code-input");
-      if (codeArea) {
-        codeArea.value = lesson.starterCode || "# Viết mã Python tại đây";
-      }
-      const consoleOut = document.getElementById("console-output");
-      if (consoleOut) {
-        consoleOut.innerHTML = ">>> Sẵn sàng thực thi.";
-      }
-
-      // Cập nhật Tab Bài tập & Trắc nghiệm
-      this.renderExerciseTab(lesson.id);
-
-      // Kết xuất công thức toán KaTeX
-      if (window.renderMathInElement && theoryContentEl) {
-        window.renderMathInElement(theoryContentEl, {
-          delimiters: [
-            {left: "$$", right: "$$", display: true},
-            {left: "$", right: "$", display: false}
-          ]
-        });
+      // 4. Nhúng bộ mô phỏng trực quan tương tác
+      try {
+        const visualizerArea = document.getElementById("embedded-visualizer-area");
+        if (visualizerArea && window.MLVisualizers) {
+          visualizerArea.innerHTML = "";
+          if (lesson.id === "lesson-dl-ch1" || lesson.id === "lesson-sup-reg") {
+            visualizerArea.innerHTML = `<div id="lesson-gd-viz"></div>`;
+            window.MLVisualizers.initGradientDescent("lesson-gd-viz");
+          } else if (lesson.id === "lesson-dl-ch5" || lesson.id === "lesson-transformer-models") {
+            visualizerArea.innerHTML = `<div id="lesson-att-viz"></div>`;
+            window.MLVisualizers.initAttentionVisualizer("lesson-att-viz");
+          } else if (lesson.id === "lesson-genai-full") {
+            visualizerArea.innerHTML = `<div id="lesson-rag-viz"></div>`;
+            window.MLVisualizers.initRAGSimulator("lesson-rag-viz");
+          }
+        }
+      } catch (e) {
+        console.warn("Visualizer init notice:", e);
       }
 
-      // Cập nhật sidebar để làm nổi bật bài học đang chọn
+      // 5. Cập nhật Trình soạn thảo Code Playground
+      try {
+        const codeArea = document.getElementById("code-input");
+        if (codeArea) {
+          codeArea.value = lesson.starterCode || "# Viết mã Python tại đây";
+        }
+        const consoleOut = document.getElementById("console-output");
+        if (consoleOut) {
+          consoleOut.innerHTML = ">>> Sẵn sàng thực thi.";
+        }
+      } catch (e) {}
+
+      // 6. Cập nhật Tab Bài tập & Trắc nghiệm
+      try {
+        this.renderExerciseTab(lesson.id);
+      } catch (e) {
+        console.warn("Exercise render notice:", e);
+      }
+
+      // 7. Cập nhật sidebar để làm nổi bật bài học
       this.renderSidebar();
 
-      // Cuộn lên đầu trang
-      if (typeof window.scrollTo === 'function') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
+      // 8. Cuộn trang lên đầu an toàn
+      try {
+        if (typeof window.scrollTo === 'function') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } catch (e) {}
     },
 
     renderExerciseTab(lessonId) {
@@ -182,7 +222,9 @@ document.addEventListener("DOMContentLoaded", () => {
             <p>Bài học này đang chuẩn bị thêm câu hỏi trắc nghiệm và thử thách code.</p>
           </div>
         `;
-        if (window.lucide) window.lucide.createIcons();
+        if (window.lucide) {
+          try { window.lucide.createIcons(); } catch (e) {}
+        }
         return;
       }
 
@@ -255,31 +297,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
       html += `</div>`;
       container.innerHTML = html;
-      if (window.lucide) window.lucide.createIcons();
+      if (window.lucide) {
+        try { window.lucide.createIcons(); } catch (e) {}
+      }
     },
 
     checkQuizAnswer(selectedIdx, correctIdx, encodedExpl) {
-      const expl = decodeURIComponent(atob(encodedExpl));
-      const options = document.querySelectorAll(".quiz-option");
-      const feedback = document.getElementById("quiz-feedback");
+      try {
+        const expl = decodeURIComponent(atob(encodedExpl));
+        const options = document.querySelectorAll(".quiz-option");
+        const feedback = document.getElementById("quiz-feedback");
 
-      options.forEach((opt, idx) => {
-        opt.onclick = null;
-        if (idx === correctIdx) {
-          opt.className = "quiz-option correct";
-        } else if (idx === selectedIdx) {
-          opt.className = "quiz-option wrong";
+        options.forEach((opt, idx) => {
+          opt.onclick = null;
+          if (idx === correctIdx) {
+            opt.className = "quiz-option correct";
+          } else if (idx === selectedIdx) {
+            opt.className = "quiz-option wrong";
+          }
+        });
+
+        if (feedback) {
+          feedback.classList.remove("hidden");
+          if (selectedIdx === correctIdx) {
+            feedback.className = "mt-4 p-4 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-sm";
+            feedback.innerHTML = `<strong>🎉 Chính xác!</strong> ${expl}`;
+            this.markLessonComplete(this.currentLessonId);
+          } else {
+            feedback.className = "mt-4 p-4 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-sm";
+            feedback.innerHTML = `<strong>❌ Chưa chính xác!</strong> ${expl}`;
+          }
         }
-      });
-
-      feedback.classList.remove("hidden");
-      if (selectedIdx === correctIdx) {
-        feedback.className = "mt-4 p-4 rounded-lg bg-emerald-950/60 border border-emerald-800 text-emerald-300 text-sm";
-        feedback.innerHTML = `<strong>🎉 Chính xác!</strong> ${expl}`;
-        this.markLessonComplete(this.currentLessonId);
-      } else {
-        feedback.className = "mt-4 p-4 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-sm";
-        feedback.innerHTML = `<strong>❌ Chưa chính xác!</strong> ${expl}`;
+      } catch (e) {
+        console.error("Quiz check error:", e);
       }
     },
 
@@ -289,21 +339,27 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     showSolution(encodedSol) {
-      const sol = decodeURIComponent(atob(encodedSol));
-      const codeArea = document.getElementById("challenge-code-input");
-      if (codeArea) codeArea.value = sol;
+      try {
+        const sol = decodeURIComponent(atob(encodedSol));
+        const codeArea = document.getElementById("challenge-code-input");
+        if (codeArea) codeArea.value = sol;
+      } catch (e) {}
     },
 
     async runChallengeCode() {
-      const code = document.getElementById("challenge-code-input").value;
-      await window.PythonRunner.runCode(code, "challenge-console-output");
-      this.markLessonComplete(this.currentLessonId);
+      const codeInput = document.getElementById("challenge-code-input");
+      if (codeInput && window.PythonRunner) {
+        await window.PythonRunner.runCode(codeInput.value, "challenge-console-output");
+        this.markLessonComplete(this.currentLessonId);
+      }
     },
 
     markLessonComplete(lessonId) {
       if (!this.completedLessons.includes(lessonId)) {
         this.completedLessons.push(lessonId);
-        localStorage.setItem("ml_hub_completed", JSON.stringify(this.completedLessons));
+        try {
+          localStorage.setItem("ml_hub_completed", JSON.stringify(this.completedLessons));
+        } catch (e) {}
         this.updateProgress();
         this.renderSidebar();
       }
@@ -333,10 +389,12 @@ document.addEventListener("DOMContentLoaded", () => {
         pane.classList.toggle("hidden", pane.id !== `pane-${tabId}`);
       });
 
-      if (tabId === "sandbox") {
-        window.MLVisualizers.initGradientDescent("sandbox-gd-viz");
-        window.MLVisualizers.initAttentionVisualizer("sandbox-att-viz");
-        window.MLVisualizers.initRAGSimulator("sandbox-rag-viz");
+      if (tabId === "sandbox" && window.MLVisualizers) {
+        try {
+          window.MLVisualizers.initGradientDescent("sandbox-gd-viz");
+          window.MLVisualizers.initAttentionVisualizer("sandbox-att-viz");
+          window.MLVisualizers.initRAGSimulator("sandbox-rag-viz");
+        } catch (e) {}
       }
     },
 
@@ -344,7 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("glossary-list");
       if (!container || !window.ML_GLOSSARY) return;
 
-      const query = searchQuery.toLowerCase().trim();
+      const query = (searchQuery || "").toLowerCase().trim();
       const filtered = window.ML_GLOSSARY.filter(item => 
         item.term.toLowerCase().includes(query) || 
         item.desc.toLowerCase().includes(query) ||
@@ -368,45 +426,47 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     setupEventListeners() {
-      // Tab switching
+      // Chuyển Tab
       document.querySelectorAll(".nav-tab").forEach(tab => {
         tab.onclick = () => this.switchTab(tab.getAttribute("data-tab"));
       });
 
-      // Search lessons
+      // Tìm kiếm bài học
       const searchEl = document.getElementById("sidebar-search");
       if (searchEl) {
         searchEl.oninput = (e) => this.renderSidebar(e.target.value);
       }
 
-      // Search glossary
+      // Tìm kiếm thuật ngữ
       const glossSearch = document.getElementById("glossary-search");
       if (glossSearch) {
         glossSearch.oninput = (e) => this.renderGlossary(e.target.value);
       }
 
-      // Theme toggle
+      // Đổi Theme
       const themeBtn = document.getElementById("theme-toggle-btn");
       if (themeBtn) {
         themeBtn.onclick = () => this.toggleTheme();
       }
 
-      // Run Playground code
+      // Chạy Code Playground
       const runCodeBtn = document.getElementById("btn-run-code");
       if (runCodeBtn) {
         runCodeBtn.onclick = async () => {
-          const code = document.getElementById("code-input").value;
-          await window.PythonRunner.runCode(code, "console-output");
+          const codeInput = document.getElementById("code-input");
+          if (codeInput && window.PythonRunner) {
+            await window.PythonRunner.runCode(codeInput.value, "console-output");
+          }
         };
       }
 
-      // Reset progress
+      // Reset tiến độ
       const resetBtn = document.getElementById("btn-reset-progress");
       if (resetBtn) {
         resetBtn.onclick = () => {
           if (confirm("Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ học tập không?")) {
             this.completedLessons = [];
-            localStorage.removeItem("ml_hub_completed");
+            try { localStorage.removeItem("ml_hub_completed"); } catch (e) {}
             this.updateProgress();
             this.renderSidebar();
           }
@@ -417,12 +477,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const toggleSidebarBtn = document.getElementById("mobile-sidebar-toggle");
       if (toggleSidebarBtn) {
         toggleSidebarBtn.onclick = () => {
-          document.querySelector(".sidebar").classList.toggle("open");
+          const sidebar = document.querySelector(".sidebar");
+          if (sidebar) sidebar.classList.toggle("open");
         };
       }
     }
   };
 
   window.App = App;
-  App.init();
-});
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => App.init());
+  } else {
+    App.init();
+  }
+})();
