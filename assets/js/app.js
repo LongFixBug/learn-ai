@@ -1,13 +1,19 @@
 // ML Learning Hub - Central Application Controller
 document.addEventListener("DOMContentLoaded", () => {
   const App = {
-    currentLessonId: "lesson-1",
+    currentLessonId: "lesson-dl-ch1",
     currentTab: "theory",
     completedLessons: JSON.parse(localStorage.getItem("ml_hub_completed") || "[]"),
     theme: localStorage.getItem("ml_hub_theme") || "dark",
 
     init() {
       this.applyTheme();
+      
+      // Khởi tạo bài học đầu tiên từ danh sách giáo trình
+      if (window.ML_CURRICULUM && window.ML_CURRICULUM.length > 0 && window.ML_CURRICULUM[0].lessons.length > 0) {
+        this.currentLessonId = window.ML_CURRICULUM[0].lessons[0].id;
+      }
+
       this.renderSidebar();
       this.loadLesson(this.currentLessonId);
       this.setupEventListeners();
@@ -37,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const query = searchQuery.toLowerCase().trim();
       let html = "";
 
-      window.ML_CURRICULUM.forEach((module, mIdx) => {
+      window.ML_CURRICULUM.forEach((module) => {
         const filteredLessons = module.lessons.filter(l => 
           l.title.toLowerCase().includes(query) || 
           l.summary.toLowerCase().includes(query)
@@ -48,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         html += `
           <div class="mb-4">
             <div class="flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-              <i data-lucide="${module.icon}" class="w-4 h-4 text-blue-400"></i>
+              <i data-lucide="${module.icon || 'book'}" class="w-4 h-4 text-blue-400"></i>
               <span>${module.title}</span>
             </div>
             <div class="space-y-1 pl-2">
@@ -62,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <button onclick="window.App.loadLesson('${lesson.id}')" 
                     class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition flex items-center justify-between gap-2 ${
                       isActive 
-                        ? 'bg-blue-600/20 text-blue-400 border border-blue-500/40 font-semibold' 
+                        ? 'bg-blue-600/20 text-blue-400 border border-blue-500/40 font-semibold shadow-sm' 
                         : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                     }">
               <div class="flex items-center gap-2 truncate">
@@ -81,55 +87,73 @@ document.addEventListener("DOMContentLoaded", () => {
     },
 
     findLesson(lessonId) {
+      if (!window.ML_CURRICULUM) return null;
       for (const m of window.ML_CURRICULUM) {
         for (const l of m.lessons) {
           if (l.id === lessonId) return { module: m, lesson: l };
         }
       }
+      // Tự động chọn bài đầu tiên nếu không tìm thấy ID cũ
+      if (window.ML_CURRICULUM.length > 0 && window.ML_CURRICULUM[0].lessons.length > 0) {
+        return { module: window.ML_CURRICULUM[0], lesson: window.ML_CURRICULUM[0].lessons[0] };
+      }
       return null;
     },
 
     loadLesson(lessonId) {
-      this.currentLessonId = lessonId;
       const data = this.findLesson(lessonId);
       if (!data) return;
 
       const { module, lesson } = data;
+      this.currentLessonId = lesson.id;
 
-      // Update header
-      document.getElementById("current-module-title").innerText = module.title;
-      document.getElementById("current-lesson-title").innerText = lesson.title;
-      document.getElementById("current-lesson-summary").innerText = lesson.summary;
+      // Cập nhật tiêu đề trang
+      const modTitleEl = document.getElementById("current-module-title");
+      const lesTitleEl = document.getElementById("current-lesson-title");
+      const lesSummEl = document.getElementById("current-lesson-summary");
 
-      // Update Theory Content
+      if (modTitleEl) modTitleEl.innerText = module.title;
+      if (lesTitleEl) lesTitleEl.innerText = lesson.title;
+      if (lesSummEl) lesSummEl.innerText = lesson.summary;
+
+      // Cập nhật Nội dung Lý thuyết
       const theoryContentEl = document.getElementById("tab-theory-content");
-      theoryContentEl.innerHTML = lesson.content;
-
-      // Embedded Visualizers based on lesson
-      const visualizerArea = document.getElementById("embedded-visualizer-area");
-      visualizerArea.innerHTML = "";
-      if (lesson.id === "lesson-1" || lesson.id === "lesson-3") {
-        visualizerArea.innerHTML = `<div id="lesson-gd-viz"></div>`;
-        window.MLVisualizers.initGradientDescent("lesson-gd-viz");
-      } else if (lesson.id === "lesson-11") {
-        visualizerArea.innerHTML = `<div id="lesson-att-viz"></div>`;
-        window.MLVisualizers.initAttentionVisualizer("lesson-att-viz");
-      } else if (lesson.id === "lesson-14") {
-        visualizerArea.innerHTML = `<div id="lesson-rag-viz"></div>`;
-        window.MLVisualizers.initRAGSimulator("lesson-rag-viz");
+      if (theoryContentEl) {
+        theoryContentEl.innerHTML = lesson.content;
       }
 
-      // Update Code Playground
+      // Nhúng bộ mô phỏng tương tác phù hợp với bài học
+      const visualizerArea = document.getElementById("embedded-visualizer-area");
+      if (visualizerArea) {
+        visualizerArea.innerHTML = "";
+        if (lesson.id === "lesson-dl-ch1" || lesson.id === "lesson-sup-reg") {
+          visualizerArea.innerHTML = `<div id="lesson-gd-viz"></div>`;
+          window.MLVisualizers.initGradientDescent("lesson-gd-viz");
+        } else if (lesson.id === "lesson-dl-ch5" || lesson.id === "lesson-transformer-models") {
+          visualizerArea.innerHTML = `<div id="lesson-att-viz"></div>`;
+          window.MLVisualizers.initAttentionVisualizer("lesson-att-viz");
+        } else if (lesson.id === "lesson-genai-full") {
+          visualizerArea.innerHTML = `<div id="lesson-rag-viz"></div>`;
+          window.MLVisualizers.initRAGSimulator("lesson-rag-viz");
+        }
+      }
+
+      // Cập nhật Trình soạn thảo Code Playground
       const codeArea = document.getElementById("code-input");
-      codeArea.value = lesson.starterCode || "# Viết code Python của bạn tại đây";
-      document.getElementById("console-output").innerHTML = ">>> Sẵn sàng thực thi.";
+      if (codeArea) {
+        codeArea.value = lesson.starterCode || "# Viết mã Python tại đây";
+      }
+      const consoleOut = document.getElementById("console-output");
+      if (consoleOut) {
+        consoleOut.innerHTML = ">>> Sẵn sàng thực thi.";
+      }
 
-      // Update Exercises & Quizzes
-      this.renderExerciseTab(lessonId);
+      // Cập nhật Tab Bài tập & Trắc nghiệm
+      this.renderExerciseTab(lesson.id);
 
-      // Render math equations with KaTeX if available
-      if (window.renderMathInElement) {
-        window.renderMathInElement(document.getElementById("tab-theory-content"), {
+      // Kết xuất công thức toán KaTeX
+      if (window.renderMathInElement && theoryContentEl) {
+        window.renderMathInElement(theoryContentEl, {
           delimiters: [
             {left: "$$", right: "$$", display: true},
             {left: "$", right: "$", display: false}
@@ -137,15 +161,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
 
-      // Re-render sidebar to highlight active
+      // Cập nhật sidebar để làm nổi bật bài học đang chọn
       this.renderSidebar();
 
-      // Scroll to top
+      // Cuộn lên đầu trang
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
     renderExerciseTab(lessonId) {
-      const exData = window.ML_EXERCISES[lessonId];
+      const exData = window.ML_EXERCISES ? window.ML_EXERCISES[lessonId] : null;
       const container = document.getElementById("tab-exercise-content");
       if (!container) return;
 
@@ -162,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       let html = `<div class="space-y-8">`;
 
-      // 1. Multiple Choice Quiz
+      // 1. Câu hỏi Trắc nghiệm
       if (exData.quiz) {
         html += `
           <div class="p-6 bg-slate-900/80 border border-slate-800 rounded-xl">
@@ -189,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       }
 
-      // 2. Coding Challenge
+      // 2. Thử thách Lập trình
       if (exData.challenge) {
         html += `
           <div class="p-6 bg-slate-900/80 border border-slate-800 rounded-xl space-y-4">
@@ -238,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const feedback = document.getElementById("quiz-feedback");
 
       options.forEach((opt, idx) => {
-        opt.onclick = null; // Disable further clicks
+        opt.onclick = null;
         if (idx === correctIdx) {
           opt.className = "quiz-option correct";
         } else if (idx === selectedIdx) {
@@ -285,9 +309,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateProgress() {
       let totalLessons = 0;
-      window.ML_CURRICULUM.forEach(m => totalLessons += m.lessons.length);
+      if (window.ML_CURRICULUM) {
+        window.ML_CURRICULUM.forEach(m => totalLessons += m.lessons.length);
+      }
       const completedCount = this.completedLessons.length;
-      const pct = Math.round((completedCount / totalLessons) * 100);
+      const pct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
       const bar = document.getElementById("progress-bar-fill");
       const text = document.getElementById("progress-text");
@@ -314,7 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     renderGlossary(searchQuery = "") {
       const container = document.getElementById("glossary-list");
-      if (!container) return;
+      if (!container || !window.ML_GLOSSARY) return;
 
       const query = searchQuery.toLowerCase().trim();
       const filtered = window.ML_GLOSSARY.filter(item => 
@@ -346,9 +372,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // Search lessons
-      document.getElementById("sidebar-search").oninput = (e) => {
-        this.renderSidebar(e.target.value);
-      };
+      const searchEl = document.getElementById("sidebar-search");
+      if (searchEl) {
+        searchEl.oninput = (e) => this.renderSidebar(e.target.value);
+      }
 
       // Search glossary
       const glossSearch = document.getElementById("glossary-search");
@@ -357,23 +384,32 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Theme toggle
-      document.getElementById("theme-toggle-btn").onclick = () => this.toggleTheme();
+      const themeBtn = document.getElementById("theme-toggle-btn");
+      if (themeBtn) {
+        themeBtn.onclick = () => this.toggleTheme();
+      }
 
       // Run Playground code
-      document.getElementById("btn-run-code").onclick = async () => {
-        const code = document.getElementById("code-input").value;
-        await window.PythonRunner.runCode(code, "console-output");
-      };
+      const runCodeBtn = document.getElementById("btn-run-code");
+      if (runCodeBtn) {
+        runCodeBtn.onclick = async () => {
+          const code = document.getElementById("code-input").value;
+          await window.PythonRunner.runCode(code, "console-output");
+        };
+      }
 
       // Reset progress
-      document.getElementById("btn-reset-progress").onclick = () => {
-        if (confirm("Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ học tập không?")) {
-          this.completedLessons = [];
-          localStorage.removeItem("ml_hub_completed");
-          this.updateProgress();
-          this.renderSidebar();
-        }
-      };
+      const resetBtn = document.getElementById("btn-reset-progress");
+      if (resetBtn) {
+        resetBtn.onclick = () => {
+          if (confirm("Bạn có chắc chắn muốn đặt lại toàn bộ tiến độ học tập không?")) {
+            this.completedLessons = [];
+            localStorage.removeItem("ml_hub_completed");
+            this.updateProgress();
+            this.renderSidebar();
+          }
+        };
+      }
 
       // Mobile sidebar toggle
       const toggleSidebarBtn = document.getElementById("mobile-sidebar-toggle");
