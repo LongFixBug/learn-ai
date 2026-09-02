@@ -165,7 +165,9 @@ document.addEventListener("DOMContentLoaded", () => {
       this.renderSidebar();
 
       // Cuộn lên đầu trang
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (typeof window.scrollTo === 'function') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     },
 
     renderExerciseTab(lessonId) {
