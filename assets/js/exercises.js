@@ -1,223 +1,272 @@
 // ML Learning Hub - Exercises, Quizzes & Coding Challenges Database
 window.ML_EXERCISES = {
-  "lesson-1": {
+  // ===================== CHƯƠNG 1 (DEEP LEARNING HANDBOOK) =====================
+  "lesson-dl-ch1": {
     quiz: {
-      question: "Trong thuật toán Hạ Gradient (Gradient Descent), nếu chọn Learning Rate (tốc độ học) quá lớn thì điều gì có thể xảy ra?",
+      question: "Điểm khác biệt cốt lõi nhất giữa Deep Learning và Machine Learning truyền thống là gì?",
       options: [
-        "Mô hình hội tụ về điểm cực tiểu toàn cục nhanh hơn bình thường.",
-        "Mô hình có thể bị dao động mạnh và phân kỳ (bắn ra khỏi điểm cực tiểu, hàm mất mát tăng dần).",
-        "Trọng số của mô hình bị triệt tiêu về đúng số 0 ngay sau bước đầu tiên.",
-        "Mô hình tự động chuyển sang giải thuật phân tích thành phần chính PCA."
+        "Deep Learning luôn chạy nhanh hơn Machine Learning.",
+        "Deep Learning có khả năng tự động học và trích xuất đặc trưng (Automatic Feature Learning) mà không cần Feature Engineering thủ công.",
+        "Machine Learning xử lý dữ liệu hình ảnh tốt hơn Deep Learning.",
+        "Deep Learning cần ít dữ liệu hơn Machine Learning."
       ],
       correctIndex: 1,
-      explanation: "Chính xác! Khi Learning Rate (tốc độ học - kích thước bước nhảy cập nhật trọng số) quá lớn, bước cập nhật sẽ vượt qua thung lũng cực tiểu của hàm mất mát, gây hiện tượng dao động (overshooting) và làm hàm mất mát phân kỳ không hội tụ được."
+      explanation: "Chính xác! Deep Learning tự động trích xuất đặc trưng nhiều tầng bậc từ dữ liệu thô (ảnh, chữ, âm thanh) mà không cần con người thiết kế đặc trưng thủ công như ML truyền thống."
     },
     challenge: {
-      title: "Thực hành 1: Viết hàm tính sai số MSE (Mean Squared Error)",
-      description: "Hãy hoàn thiện hàm `calculate_mse(y_true, y_pred)` nhận vào 2 mảng NumPy `y_true` (giá trị thực tế) và `y_pred` (giá trị dự đoán), trả về giá trị trung bình bình phương sai số MSE.",
+      title: "Bài toán định lượng & Lập trình: Nơ-ron đơn lẻ (Perceptron) với PyTorch",
+      description: "Cho đầu vào x = [2.0, -1.5, 3.0], trọng số w = [0.4, 0.8, -0.2], bias b = 0.5. Hãy viết code tính tổng tuyến tính z = w^T*x + b và kích hoạt ReLU y = max(0, z).",
+      starterCode: `import torch
+import torch.nn as nn
+
+# TODO: Khởi tạo x, w, b và tính toán đầu ra y qua ReLU
+x = torch.tensor([2.0, -1.5, 3.0])
+w = torch.tensor([0.4, 0.8, -0.2])
+b = torch.tensor(0.5)
+
+# Tính tổng tuyến tính z
+z = torch.dot(w, x) + b
+# Kích hoạt ReLU
+y = torch.relu(z)
+
+print("Tổng tuyến tính z:", z.item())
+print("Đầu ra nơ-ron y:", y.item())
+`,
+      solution: `import torch
+
+x = torch.tensor([2.0, -1.5, 3.0])
+w = torch.tensor([0.4, 0.8, -0.2])
+b = torch.tensor(0.5)
+
+# z = (0.4*2.0) + (0.8*-1.5) + (-0.2*3.0) + 0.5 = 0.8 - 1.2 - 0.6 + 0.5 = -0.5
+z = torch.dot(w, x) + b
+# y = max(0, -0.5) = 0.0
+y = torch.relu(z)
+
+print(f"Tổng tuyến tính z = {z.item():.2f} (Kỳ vọng: -0.50)")
+print(f"Đầu ra nơ-ron y  = {y.item():.2f} (Kỳ vọng: 0.00)")
+`,
+      hint: "Sử dụng `torch.dot(w, x) + b` và `torch.relu(z)`."
+    }
+  },
+
+  // ===================== CHƯƠNG 2 (DEEP LEARNING HANDBOOK) =====================
+  "lesson-dl-ch2": {
+    quiz: {
+      question: "Vì sao hàm kích hoạt ReLU được ưa chuộng hơn Sigmoid trong các lớp ẩn (Hidden Layers) của mạng nơ-ron sâu?",
+      options: [
+        "ReLU giới hạn đầu ra trong khoảng từ 0 đến 1.",
+        "ReLU giúp tính toán cực nhanh và giảm thiểu tối đa hiện tượng triệt tiêu gradient (vanishing gradient) ở vùng dương.",
+        "ReLU luôn tạo ra đầu ra đối xứng qua điểm 0.",
+        "ReLU hoạt động hiệu quả hơn ở lớp đầu ra phân loại xác suất."
+      ],
+      correctIndex: 1,
+      explanation: "Chính xác! Đạo hàm của ReLU ở vùng dương luôn bằng 1.0 cố định, giúp gradient truyền ngược qua hàng chục lớp ẩn mà không bị co cụm suy giảm về 0 như hàm Sigmoid hay Tanh."
+    },
+    challenge: {
+      title: "Bài toán định lượng & Lập trình: Lan truyền ngược (Backpropagation) với Autograd",
+      description: "Tính đạo hàm d(loss)/dx tự động với PyTorch cho hàm Loss = y^2 với y = 3x^2 + 2x + 1 tại điểm x = 1.0.",
+      starterCode: `import torch
+
+# Khởi tạo biến x có tính gradient
+x = torch.tensor([1.0], requires_grad=True)
+
+# Lan truyền xuôi Forward
+y = 3 * (x ** 2) + 2 * x + 1
+loss = y ** 2
+
+# Lan truyền ngược Backward
+loss.backward()
+
+print("Giá trị Loss:", loss.item())
+print("Gradient đạo hàm d(loss)/dx tại x=1.0:", x.grad.item())
+`,
+      solution: `import torch
+
+x = torch.tensor([1.0], requires_grad=True)
+y = 3 * (x ** 2) + 2 * x + 1
+loss = y ** 2
+
+loss.backward()
+
+# Đạo hàm giải tích: d(loss)/dx = 2 * y * (6x + 2) = 2 * 6 * 8 = 96.0
+print(f"Giá trị Loss: {loss.item()} (Kỳ vọng: 36.0)")
+print(f"Gradient:    {x.grad.item()} (Kỳ vọng: 96.0)")
+`,
+      hint: "Sử dụng hàm `loss.backward()` và đọc kết quả tại `x.grad`."
+    }
+  },
+
+  // ===================== CHƯƠNG 3 (DEEP LEARNING HANDBOOK) =====================
+  "lesson-dl-ch3": {
+    quiz: {
+      question: "Đồ thị huấn luyện cho thấy: Loss của tập Train tiếp tục giảm rất thấp, nhưng Loss của tập Validation bắt đầu tăng mạnh trở lại. Đây là dấu hiệu của hiện tượng gì?",
+      options: [
+        "Underfitting (Chưa khớp)",
+        "Good Fit (Khớp tối ưu)",
+        "Overfitting (Quá khớp / Học vẹt)",
+        "Vanishing Gradient (Triệt tiêu gradient)"
+      ],
+      correctIndex: 2,
+      explanation: "Chính xác! Khi Train Loss giảm nhưng Validation Loss tăng vọt, mô hình đã bắt đầu 'học vẹt' cả nhiễu của tập huấn luyện và mất khả năng tổng quát hóa trên dữ liệu mới (Overfitting)."
+    },
+    challenge: {
+      title: "Bài toán định lượng & Lập trình: Tính lỗi Binary Cross Entropy (BCE)",
+      description: "Mô hình dự đoán xác suất y_hat = 0.8 cho nhãn thực tế y = 1. Hãy viết code tính lỗi BCE = -[y*log(y_hat) + (1-y)*log(1-y_hat)].",
       starterCode: `import numpy as np
 
-def calculate_mse(y_true, y_pred):
-    # TODO: Tính toán công thức MSE = (1/N) * sum((y_true - y_pred)^2)
-    # Gợi ý: Sử dụng np.mean() và toán tử ** 2
-    pass
+y_true = 1.0
+y_pred = 0.8
 
-# Kiểm thử với dữ liệu mẫu
-y_true = np.array([10.0, 20.0, 30.0, 40.0])
-y_pred = np.array([12.0, 19.0, 32.0, 38.0])
-
-result = calculate_mse(y_true, y_pred)
-print("Kết quả MSE của bạn:", result)
+# TODO: Tính lỗi BCE
+loss_bce = -(y_true * np.log(y_pred) + (1.0 - y_true) * np.log(1.0 - y_pred))
+print("Lỗi BCE tính được:", round(loss_bce, 4))
 `,
       solution: `import numpy as np
+
+y_true = 1.0
+y_pred = 0.8
+
+# BCE = -[1 * ln(0.8) + 0] = -ln(0.8) ≈ 0.2231
+loss_bce = -(y_true * np.log(y_pred) + (1.0 - y_true) * np.log(1.0 - y_pred))
+print(f"Lỗi BCE: {loss_bce:.4f} (Kỳ vọng: 0.2231)")
+`,
+      hint: "Sử dụng `np.log()` để tính logarit tự nhiên."
+    }
+  },
+
+  // ===================== CHƯƠNG 4 (DEEP LEARNING HANDBOOK) =====================
+  "lesson-dl-ch4": {
+    quiz: {
+      question: "Một bức ảnh 5x5 (N=5) đi qua tầng tích chập có Filter 3x3 (F=3), Padding P=1, Stride S=1. Kích thước bản đồ đặc trưng đầu ra O là bao nhiêu?",
+      options: [
+        "3x3",
+        "5x5",
+        "4x4",
+        "7x7"
+      ],
+      correctIndex: 1,
+      explanation: "Chính xác! Áp dụng công thức: O = ((N - F + 2P) / S) + 1 = ((5 - 3 + 2*1) / 1) + 1 = (4 / 1) + 1 = 5. Do đó kích thước đầu ra là 5x5."
+    },
+    challenge: {
+      title: "Bài toán định lượng & Lập trình: Xây dựng khối CNN & Max Pooling trong PyTorch",
+      description: "Định nghĩa một khối CNN gồm 1 tầng tích chập Conv2d(in=1, out=16, kernel=3, padding=1) và 1 tầng MaxPool2d(2, 2).",
+      starterCode: `import torch
+import torch.nn as nn
+
+class ConvNetBlock(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, padding=1)
+        self.relu = nn.ReLU()
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        
+    def forward(self, x):
+        return self.pool(self.relu(self.conv(x)))
+
+net = ConvNetBlock()
+x = torch.randn(1, 1, 28, 28) # Ảnh đầu vào 28x28
+out = net(x)
+print("Kích thước Feature Map đầu ra:", out.shape)
+`,
+      solution: `import torch
+import torch.nn as nn
+
+class ConvNetBlock(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, padding=1)
+        self.relu = nn.ReLU()
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        
+    def forward(self, x):
+        return self.pool(self.relu(self.conv(x)))
+
+net = ConvNetBlock()
+x = torch.randn(1, 1, 28, 28)
+out = net(x)
+print(f"Đầu ra: {out.shape} -> Chuẩn xác kích thước 14x14 sau MaxPool!")
+`,
+      hint: "Qua Conv2d padding=1 kích thước giữ nguyên 28x28, sau MaxPool stride=2 giảm một nửa còn 14x14."
+    }
+  },
+
+  // ===================== CHƯƠNG 5 (DEEP LEARNING HANDBOOK) =====================
+  "lesson-dl-ch5": {
+    quiz: {
+      question: "Trong công thức Scaled Dot-Product Attention của Transformer, mục đích của việc chia cho căn bậc hai của số chiều (sqrt(d_k)) là gì?",
+      options: [
+        "Để tăng tốc độ nhân hai ma trận.",
+        "Để chuẩn hóa giá trị tích vô hướng, giữ cho gradient của hàm Softmax không bị tiêu biến.",
+        "Để loại bỏ hoàn toàn ma trận Value.",
+        "Để thay thế cho tầng mã hóa vị trí Positional Encoding."
+      ],
+      correctIndex: 1,
+      explanation: "Chính xác! Khi chiều d_k lớn, tích vô hướng Q*K^T sẽ có giá trị rất lớn, đẩy hàm Softmax vào vùng bão hòa có đạo hàm cực nhỏ. Việc chia cho căn bậc hai d_k giúp ổn định phân bố giá trị và giữ gradient ổn định."
+    },
+    challenge: {
+      title: "Bài toán định lượng & Lập trình: Khởi tạo Multi-Head Attention trong PyTorch",
+      description: "Sử dụng lớp `nn.MultiheadAttention(embed_dim=512, num_heads=8)` và truyền qua bộ tensor Q, K, V có chiều (Seq_len=10, Batch=2, Embed=512).",
+      starterCode: `import torch
+import torch.nn as nn
+
+# Khởi tạo Multihead Attention
+multihead_attn = nn.MultiheadAttention(embed_dim=512, num_heads=8)
+
+q = torch.randn(10, 2, 512)
+k = torch.randn(10, 2, 512)
+v = torch.randn(10, 2, 512)
+
+attn_output, attn_weights = multihead_attn(q, k, v)
+print("Kích thước đầu ra của Attention Output:", attn_output.shape)
+`,
+      solution: `import torch
+import torch.nn as nn
+
+multihead_attn = nn.MultiheadAttention(embed_dim=512, num_heads=8)
+
+q = torch.randn(10, 2, 512)
+k = torch.randn(10, 2, 512)
+v = torch.randn(10, 2, 512)
+
+attn_output, attn_weights = multihead_attn(q, k, v)
+print(f"Kích thước Attention: {attn_output.shape} (Khớp chuẩn: [10, 2, 512])")
+`,
+      hint: "Khởi tạo `nn.MultiheadAttention(embed_dim=512, num_heads=8)`."
+    }
+  },
+
+  // ===================== CÁC MODULE MACHINE LEARNING CỔ ĐIỂN =====================
+  "lesson-sup-reg": {
+    quiz: {
+      question: "Kỹ thuật chuẩn hóa Lasso Regression (L1 Regularization) có ưu điểm nổi bật gì so với Ridge Regression (L2)?",
+      options: [
+        "Lasso có thể triệt tiêu các trọng số không quan trọng về đúng bằng 0, đóng vai trò như bộ chọn lọc đặc trưng (Feature Selection).",
+        "Lasso chỉ dùng cho ảnh, không dùng cho bảng dữ liệu.",
+        "Lasso làm tăng số chiều dữ liệu lên gấp đôi.",
+        "Lasso luôn luôn không bị lỗi phân kỳ."
+      ],
+      correctIndex: 0,
+      explanation: "Chính xác! Chuẩn hóa L1 có tính chất toán học ép trọng số của các biến không quan trọng về 0."
+    },
+    challenge: {
+      title: "Thực hành: Tính sai số MSE",
+      description: "Hoàn thiện hàm tính Mean Squared Error giữa y_true và y_pred.",
+      starterCode: `import numpy as np
 
 def calculate_mse(y_true, y_pred):
     return np.mean((y_true - y_pred) ** 2)
 
-y_true = np.array([10.0, 20.0, 30.0, 40.0])
-y_pred = np.array([12.0, 19.0, 32.0, 38.0])
-
-result = calculate_mse(y_true, y_pred)
-print("Kết quả MSE chuẩn xác:", result) # Kỳ vọng: 3.25
-`,
-      hint: "Hãy lấy hiệu `(y_true - y_pred)` sau đó bình phương `** 2` và tính trung bình với `np.mean()`."
-    }
-  },
-  "lesson-3": {
-    quiz: {
-      question: "Kỹ thuật chuẩn hóa Lasso Regression (L1 Regularization) có ưu điểm nổi bật gì so với Ridge Regression (L2 Regularization)?",
-      options: [
-        "Lasso có thể ép các trọng số không quan trọng về đúng bằng 0, đóng vai trò như một bộ chọn lọc đặc trưng (Feature Selection).",
-        "Lasso chỉ hoạt động được trên dữ liệu ảnh, không dùng được cho bảng số.",
-        "Lasso luôn cho hàm mất mát không bao giờ bị Overfitting.",
-        "Lasso làm tăng số chiều của dữ liệu lên gấp đôi."
-      ],
-      correctIndex: 0,
-      explanation: "Chính xác! Chuẩn hóa L1 (Lasso) sử dụng tổng giá trị tuyệt đối $|w_j|$ làm hình phạt, có đặc tính toán học ép các trọng số của các đặc trưng ít quan trọng về thẳng số 0, từ đó giúp tự động chọn lọc các đặc trưng có giá trị nhất."
-    },
-    challenge: {
-      title: "Thực hành 3: Huấn luyện Hồi quy Tuyến tính với Scikit-learn",
-      description: "Viết hàm huấn luyện mô hình `LinearRegression`, dự đoán trên tập kiểm thử và in ra điểm số R2 Score.",
-      starterCode: `from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-import numpy as np
-
-# Tạo dữ liệu
-X_train = np.array([[1], [2], [3], [4], [5]])
-y_train = np.array([2.1, 3.9, 6.2, 8.1, 9.9])
-
-X_test = np.array([[6], [7]])
-y_test = np.array([12.0, 14.1])
-
-# TODO: Khởi tạo mô hình, fit dữ liệu và tính r2_score
-# model = ...
-`,
-      solution: `from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
-import numpy as np
-
-X_train = np.array([[1], [2], [3], [4], [5]])
-y_train = np.array([2.1, 3.9, 6.2, 8.1, 9.9])
-
-X_test = np.array([[6], [7]])
-y_test = np.array([12.0, 14.1])
-
-model = LinearRegression()
-model.fit(X_train, y_train)
-
-preds = model.predict(X_test)
-score = r2_score(y_test, preds)
-
-print("Hệ số góc (slope):", model.coef_[0])
-print("Hệ số chặn (intercept):", model.intercept_)
-print(f"R2 Score trên tập test: {score:.4f}")
-`,
-      hint: "Sử dụng `model = LinearRegression()`, sau đó gọi `model.fit(X_train, y_train)` và `model.predict(X_test)`."
-    }
-  },
-  "lesson-4": {
-    quiz: {
-      question: "Trong bài toán chẩn đoán bệnh hiểm nghèo (nơi việc bỏ sót một ca bệnh có thể dẫn đến nguy hiểm tính mạng), ta cần ưu tiên tối đa chỉ số đánh giá nào?",
-      options: [
-        "Accuracy (Độ chính xác tổng quan)",
-        "Recall (Độ bao phủ / Độ nhạy phát hiện ca bệnh thực tế)",
-        "Precision (Độ chuẩn xác khi dự đoán dương tính)",
-        "Training Time (Thời gian huấn luyện)"
-      ],
-      correctIndex: 1,
-      explanation: "Chính xác! Recall = TP / (TP + FN). Trong y tế, chỉ số FN (False Negative - người bị bệnh nhưng mô hình dự đoán là bình thường) cực kỳ nguy hiểm. Do đó ta cần tối đa hóa Recall để không bỏ lọt bất kỳ bệnh nhân nào."
-    },
-    challenge: {
-      title: "Thực hành 4: Xây dựng Ma trận nhầm lẫn (Confusion Matrix) & Tính F1-Score",
-      description: "Sử dụng `sklearn.metrics` để tính toán Precision, Recall và F1-Score cho tập nhãn thực tế và nhãn dự đoán.",
-      starterCode: `from sklearn.metrics import precision_score, recall_score, f1_score
-import numpy as np
-
-y_true = np.array([1, 1, 0, 1, 0, 0, 1, 0, 1, 0])
-y_pred = np.array([1, 1, 0, 0, 0, 0, 1, 1, 1, 0])
-
-# TODO: Tính precision, recall, f1
-`,
-      solution: `from sklearn.metrics import precision_score, recall_score, f1_score
-import numpy as np
-
-y_true = np.array([1, 1, 0, 1, 0, 0, 1, 0, 1, 0])
-y_pred = np.array([1, 1, 0, 0, 0, 0, 1, 1, 1, 0])
-
-prec = precision_score(y_true, y_pred)
-rec = recall_score(y_true, y_pred)
-f1 = f1_score(y_true, y_pred)
-
-print(f"Precision: {prec:.4f}")
-print(f"Recall:    {rec:.4f}")
-print(f"F1-Score:  {f1:.4f}")
-`,
-      hint: "Gọi `precision_score(y_true, y_pred)`, `recall_score(y_true, y_pred)` và `f1_score(y_true, y_pred)`."
-    }
-  },
-  "lesson-11": {
-    quiz: {
-      question: "Trong cơ chế Tự chú ý (Self-Attention) của Transformer, phép chia cho căn bậc hai của số chiều (sqrt(d_k)) có mục đích chính là gì?",
-      options: [
-        "Để tăng độ phức tạp thuật toán lên O(N^3).",
-        "Để tránh các giá trị tích vô hướng quá lớn làm cho đạo hàm của hàm Softmax bị bão hòa (tiêu biến gradient).",
-        "Để mã hóa thứ tự vị trí của các từ trong câu.",
-        "Để nén câu văn bản lại thành 1 token duy nhất."
-      ],
-      correctIndex: 1,
-      explanation: "Chính xác! Khi chiều không gian d_k lớn, tích vô hướng Q*K^T sẽ có giá trị rất lớn, đẩy hàm Softmax vào vùng bão hòa có đạo hàm cực nhỏ, khiến gradient không thể truyền ngược hiệu quả. Việc chia cho căn bậc hai d_k giúp ổn định phân phối xác suất."
-    },
-    challenge: {
-      title: "Thực hành 11: Tính toán hàm kích hoạt Softmax",
-      description: "Tự viết hàm `softmax(x)` cho vector số thực 1D không sử dụng thư viện ngoài.",
-      starterCode: `import numpy as np
-
-def custom_softmax(x):
-    # TODO: Viết hàm softmax = exp(x - max(x)) / sum(exp(x - max(x)))
-    pass
-
-scores = np.array([2.0, 1.0, 0.1])
-print("Xác suất Softmax:", custom_softmax(scores))
+y_true = np.array([10.0, 20.0, 30.0])
+y_pred = np.array([12.0, 19.0, 32.0])
+print("MSE:", calculate_mse(y_true, y_pred))
 `,
       solution: `import numpy as np
-
-def custom_softmax(x):
-    exp_x = np.exp(x - np.max(x)) # Trừ max để ổn định số học
-    return exp_x / np.sum(exp_x)
-
-scores = np.array([2.0, 1.0, 0.1])
-probs = custom_softmax(scores)
-print("Xác suất Softmax:", np.round(probs, 4))
-print("Tổng xác suất:", np.sum(probs))
+def calculate_mse(y_true, y_pred):
+    return np.mean((y_true - y_pred) ** 2)
+print("MSE:", calculate_mse(np.array([10.0, 20.0, 30.0]), np.array([12.0, 19.0, 32.0])))
 `,
-      hint: "Dùng `np.exp(x - np.max(x))` rồi chia cho `np.sum(...)`."
-    }
-  },
-  "lesson-14": {
-    quiz: {
-      question: "Kỹ thuật RAG (Retrieval-Augmented Generation) giải quyết trực tiếp điểm yếu nào lớn nhất của các mô hình LLM thuần túy?",
-      options: [
-        "Giúp mô hình sinh ra hình ảnh với độ phân giải cao hơn 4K.",
-        "Khắc phục hiện tượng ảo giác (Hallucination) và thiếu cập nhật tri thức thời gian thực / dữ liệu chuyên biệt của doanh nghiệp.",
-        "Giúp mô hình chạy được trên CPU không cần RAM.",
-        "Thay thế hoàn toàn ngôn ngữ lập trình Python bằng C++."
-      ],
-      correctIndex: 1,
-      explanation: "Chính xác! LLMs thuần túy chỉ có tri thức đến thời điểm chốt dữ liệu huấn luyện và có thể bịa đặt thông tin (Hallucination). RAG truy xuất tài liệu thực tế từ Vector DB và cung cấp làm ngữ cảnh đáng tin cậy để LLM tổng hợp câu trả lời."
-    },
-    challenge: {
-      title: "Thực hành 14: Tính toán độ tương đồng Cosine giữa các câu hỏi",
-      description: "Viết hàm tính Cosine Similarity giữa câu hỏi của người dùng và các vector tài liệu.",
-      starterCode: `import numpy as np
-
-def cosine_similarity(v1, v2):
-    # TODO: Cosine = dot(v1, v2) / (norm(v1) * norm(v2))
-    pass
-
-v_query = np.array([0.8, 0.6])
-v_doc1 = np.array([0.8, 0.6])  # Trùng khớp hoàn toàn
-v_doc2 = np.array([-0.6, 0.8]) # Vuông góc
-
-print("Độ tương đồng với Doc1 (kỳ vọng 1.0):", cosine_similarity(v_query, v_doc1))
-print("Độ tương đồng với Doc2 (kỳ vọng 0.0):", cosine_similarity(v_query, v_doc2))
-`,
-      solution: `import numpy as np
-
-def cosine_similarity(v1, v2):
-    norm1 = np.linalg.norm(v1)
-    norm2 = np.linalg.norm(v2)
-    if norm1 == 0 or norm2 == 0:
-        return 0.0
-    return np.dot(v1, v2) / (norm1 * norm2)
-
-v_query = np.array([0.8, 0.6])
-v_doc1 = np.array([0.8, 0.6])
-v_doc2 = np.array([-0.6, 0.8])
-
-print("Độ tương đồng với Doc1:", round(cosine_similarity(v_query, v_doc1), 4))
-print("Độ tương đồng với Doc2:", round(cosine_similarity(v_query, v_doc2), 4))
-`,
-      hint: "Sử dụng `np.dot(v1, v2)` và hàm tính độ dài vector `np.linalg.norm()`."
+      hint: "Dùng `np.mean((y_true - y_pred) ** 2)`."
     }
   }
 };
