@@ -90,7 +90,6 @@ Inputs (x)       Weights (w)
         starterCode: `import torch
 import torch.nn as nn
 
-# Thiết lập seed cố định
 torch.manual_seed(42)
 
 # Khởi tạo dữ liệu đầu vào (batch_size=1, features=3)
@@ -297,7 +296,6 @@ import torch.nn as nn
 class ConvNetBlock(nn.Module):
     def __init__(self):
         super().__init__()
-        # Conv2d: in=1, out=16, kernel=3x3, padding=1
         self.conv = nn.Conv2d(1, 16, kernel_size=3, padding=1)
         self.relu = nn.ReLU()
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
@@ -348,10 +346,8 @@ print("Kích thước sau Conv + MaxPool (kỳ vọng 14x14):", out.shape)
         starterCode: `import torch
 import torch.nn as nn
 
-# Khởi tạo Multi-Head Attention trong PyTorch (embed_dim=512, heads=8)
 multihead_attn = nn.MultiheadAttention(embed_dim=512, num_heads=8)
 
-# Sequence length = 10, Batch size = 2, Embedding dimension = 512
 q = torch.randn(10, 2, 512)
 k = torch.randn(10, 2, 512)
 v = torch.randn(10, 2, 512)
@@ -377,10 +373,10 @@ print("Kích thước Attention Output (10, 2, 512):", attn_output.shape)
         content: `
           <h3>Các thuật toán Hồi quy trong sơ đồ:</h3>
           <ul>
-            <li><strong><span class="term-highlight" data-tooltip="Hồi quy tuyến tính">Linear Regression (hồi quy tuyến tính $y = w^T x + b$)</span></strong>.</li>
-            <li><strong><span class="term-highlight" data-tooltip="Hồi quy đa thức">Polynomial Regression (hồi quy đa thức $x^2, x^3$)</span></strong>.</li>
-            <li><strong><span class="term-highlight" data-tooltip="Ridge">Ridge Regression (chuẩn hóa L2 $\\lambda \\sum w^2$)</span></strong>.</li>
-            <li><strong><span class="term-highlight" data-tooltip="Lasso">Lasso Regression (chuẩn hóa L1 $\\lambda \\sum |w|$)</span></strong>.</li>
+            <li><strong>Linear Regression</strong>: Hồi quy tuyến tính $y = w^T x + b$.</li>
+            <li><strong>Polynomial Regression</strong>: Hồi quy đa thức $x^2, x^3$.</li>
+            <li><strong>Ridge Regression</strong>: Chuẩn hóa L2 $\\lambda \\sum w^2$.</li>
+            <li><strong>Lasso Regression</strong>: Chuẩn hóa L1 $\\lambda \\sum |w|$.</li>
           </ul>
         `,
         starterCode: `from sklearn.linear_model import LinearRegression, Ridge, Lasso
@@ -402,17 +398,15 @@ print("Dự đoán x=6:", model.predict(poly.transform([[6]])))
         content: `
           <h3>Các thuật toán Phân loại trong sơ đồ:</h3>
           <ul>
-            <li><strong><span class="term-highlight" data-tooltip="Logistic">Logistic Regression (phân loại nhị phân qua Sigmoid)</span></strong>.</li>
-            <li><strong><span class="term-highlight" data-tooltip="SVM">SVM - Support Vector Machine (tìm siêu phẳng cực đại Margin)</span></strong>.</li>
-            <li><strong><span class="term-highlight" data-tooltip="Cây quyết định">Decision Trees (phân nhánh theo Gini/Entropy)</span></strong>.</li>
-            <li><strong><span class="term-highlight" data-tooltip="k-NN">k-NN (bỏ phiếu theo k láng giềng gần nhất)</span></strong>.</li>
-            <li><strong><span class="term-highlight" data-tooltip="Naive Bayes">Naive Bayes (xác suất điều kiện độc lập)</span></strong>.</li>
+            <li><strong>Logistic Regression</strong>: Phân loại nhị phân qua Sigmoid.</li>
+            <li><strong>SVM</strong>: Support Vector Machine cực đại hóa Margin.</li>
+            <li><strong>Decision Trees</strong>: Phân nhánh theo Gini / Entropy.</li>
+            <li><strong>k-NN</strong>: Bỏ phiếu theo k láng giềng gần nhất.</li>
+            <li><strong>Naive Bayes</strong>: Xác suất điều kiện độc lập.</li>
           </ul>
         `,
         starterCode: `from sklearn.datasets import load_iris
-from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.neighbors import KNeighborsClassifier
 
 X, y = load_iris(return_X_y=True)
 clf = DecisionTreeClassifier(max_depth=3).fit(X, y)
@@ -434,13 +428,13 @@ print("Độ chính xác Decision Tree:", clf.score(X, y))
         content: `
           <h3>Các thuật toán Phân cụm:</h3>
           <ul>
-            <li><strong>K-Means</strong>: Phân cụm dựa trên tâm cụm Voronoi.</li>
-            <li><strong>DBSCAN</strong>: Phân cụm theo mật độ, lọc điểm nhiễu.</li>
-            <li><strong>Agglomerative</strong>: Phân cụm phân cấp Dendrogram.</li>
-            <li><strong>Mean Shift & Fuzzy C-Means</strong>: Tìm đỉnh mật độ và phân cụm mờ.</li>
+            <li><strong>K-Means</strong>: Phân cụm dựa trên khoảng cách tới tâm cụm.</li>
+            <li><strong>DBSCAN</strong>: Phân cụm theo mật độ điểm lân cận.</li>
+            <li><strong>Agglomerative</strong>: Phân cụm phân cấp từ dưới lên.</li>
+            <li><strong>Mean Shift & Fuzzy C-Means</strong>: Tìm đỉnh mật độ xác suất và phân cụm mờ.</li>
           </ul>
         `,
-        starterCode: `from sklearn.cluster import KMeans, DBSCAN
+        starterCode: `from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
 
 X, _ = make_blobs(n_samples=200, centers=3, random_state=42)
@@ -455,9 +449,9 @@ print("Tâm cụm K-Means:\\n", km.cluster_centers_)
         content: `
           <h3>Giảm chiều & Khai phá luật kết hợp:</h3>
           <ul>
-            <li><strong>PCA, SVD, LDA</strong>: Giảm chiều tuyến tính.</li>
-            <li><strong>t-SNE, UMAP</strong>: Giảm chiều phi tuyến bảo toàn hình học dữ liệu.</li>
-            <li><strong>Apriori, FP-Growth, Eclat</strong>: Khai phá các mục thường xuyên đi kèm nhau.</li>
+            <li><strong>PCA, SVD, LDA</strong>: Giảm chiều tuyến tính bảo toàn phương sai hoặc tối đa phân tách lớp.</li>
+            <li><strong>t-SNE, UMAP</strong>: Giảm chiều phi tuyến bảo toàn hình học dữ liệu 2D/3D.</li>
+            <li><strong>Apriori, FP-Growth, Eclat</strong>: Tìm quy luật tập mục mua sắm đồng thời.</li>
           </ul>
         `,
         starterCode: `from sklearn.decomposition import PCA
@@ -488,7 +482,7 @@ print("Kích thước sau PCA 2D:", X_pca.shape)
             <li><strong>Stacking & Voting</strong>: <code>Hard Voting</code> và <code>Soft Voting</code>.</li>
           </ul>
         `,
-        starterCode: `from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+        starterCode: `from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
 
 X, y = make_classification(n_samples=300, random_state=42)
@@ -516,7 +510,7 @@ print("Random Forest Accuracy:", rf.score(X, y))
             <li><strong>Transfer Learning</strong>: <code>Fine-Tuning</code>, <code>Feature Extraction</code>.</li>
           </ul>
         `,
-        starterCode: `print("Nguyên lý BYOL (Bootstrap Your Own Latent): Học biểu diễn mà không cần cặp mẫu âm Negative Samples.")
+        starterCode: `print("BYOL (Bootstrap Your Own Latent): Học biểu diễn mà không cần mẫu âm Negative Samples.")
 `
       }
     ]
@@ -586,9 +580,33 @@ print("Random Forest Accuracy:", rf.score(X, y))
             <li><strong>Hidden Markov Models (HMM)</strong>: Chuỗi trạng thái ẩn giải qua thuật toán Viterbi.</li>
           </ul>
         `,
-        starterCode: `print("HMM: Ứng dụng kinh điển trong nhận dạng giọng nói và sinh học tin học.")
+        starterCode: `print("HMM: Ứng dụng kinh điển trong nhận dạng giọng nói và chuỗi sinh học.")
 `
       }
     ]
   }
+];
+
+// ===================== TỪ ĐIỂN THUẬT NGỮ A-Z =====================
+window.ML_GLOSSARY = [
+  { term: "Perceptron", desc: "Đơn vị tính toán nơ-ron cơ bản nhận đầu vào, nhân trọng số, cộng bias và áp dụng hàm kích hoạt phi tuyến.", category: "Deep Learning" },
+  { term: "Backpropagation", desc: "Thuật toán lan truyền ngược lỗi từ lớp đầu ra về các lớp trước bằng quy tắc đạo hàm chuỗi (Chain Rule) để tính gradient.", category: "Deep Learning" },
+  { term: "ReLU (Rectified Linear Unit)", desc: "Hàm kích hoạt f(x) = max(0, x), tính toán siêu nhanh và chống triệt tiêu gradient ở miền dương.", category: "Deep Learning" },
+  { term: "Softmax", desc: "Hàm kích hoạt biến đổi vector điểm số logits thành phân phối xác suất có tổng bằng 1.0 cho bài toán phân loại đa lớp.", category: "Deep Learning" },
+  { term: "Adam Optimizer", desc: "Bộ tối ưu hóa kết hợp ưu điểm của cả Momentum (lực quán tính) và RMSProp (tự điều chỉnh learning rate).", category: "Optimization" },
+  { term: "Dropout", desc: "Kỹ thuật Regularization ngẫu nhiên ngắt kết nối một tỷ lệ nơ-ron (ví dụ 30-50%) ở mỗi bước huấn luyện để chống Overfitting.", category: "Regularization" },
+  { term: "Batch Normalization", desc: "Kỹ thuật chuẩn hóa đầu ra lớp ẩn về phân phối chuẩn (mean=0, var=1) giúp tăng tốc độ huấn luyện và ổn định mạng.", category: "Deep Learning" },
+  { term: "Convolution (Tích chập)", desc: "Phép trượt bộ lọc Filter/Kernel qua ảnh để trích xuất các bản đồ đặc trưng Feature Map không gian.", category: "Computer Vision" },
+  { term: "Max Pooling", desc: "Lớp gộp lấy giá trị lớn nhất trong từng vùng cửa sổ để nén kích thước không gian và giảm số tham số tính toán.", category: "Computer Vision" },
+  { term: "ResNet (Residual Network)", desc: "Kiến trúc mạng tích chập đột phá sử dụng kết nối tắt F(x) + x giúp giải quyết triệt để lỗi tiêu biến gradient ở mạng sâu >100 lớp.", category: "Computer Vision" },
+  { term: "LSTM (Long Short-Term Memory)", desc: "Mạng nơ-ron hồi quy có 3 cổng Forget, Input, Output Gates giúp ghi nhớ thông tin ngữ cảnh dài hạn.", category: "Sequence & NLP" },
+  { term: "Self-Attention", desc: "Cơ chế tự chú ý tính toán Attention(Q,K,V) = softmax(QK^T / sqrt(d_k))V cho phép mọi từ tương tác trực tiếp với nhau.", category: "Transformers" },
+  { term: "Positional Encoding", desc: "Cơ chế mã hóa vị trí bằng hàm Sin/Cos hoặc vector học được để cung cấp thứ tự từ cho kiến trúc Transformer song song.", category: "Transformers" },
+  { term: "Vision Transformer (ViT)", desc: "Áp dụng Transformer trực tiếp lên các mảnh cắt ảnh Patch 16x16 thay thế cho mạng tích chập CNN.", category: "Computer Vision" },
+  { term: "Large Language Model (LLM)", desc: "Mô hình ngôn ngữ hàng chục tỷ tham số được tiền huấn luyện trên quy mô khổng lồ (GPT-4o, LLaMA 3, Claude 3).", category: "Generative AI" },
+  { term: "RAG (Retrieval-Augmented Generation)", desc: "Kiến trúc kết hợp truy xuất tài liệu thực tế từ Vector Database với LLM để trả lời chính xác, tránh bịa đặt.", category: "Generative AI" },
+  { term: "LoRA (Low-Rank Adaptation)", desc: "Kỹ thuật tinh chỉnh tham số hiệu quả đóng băng mô hình gốc và chèn thêm ma trận phân rã hạng thấp.", category: "Fine-Tuning" },
+  { term: "Diffusion Model", desc: "Mô hình tạo sinh ảnh dựa trên quá trình khử nhiễu từng bước từ nhiễu ngẫu nhiên Gaussian (Stable Diffusion 3, Midjourney).", category: "Generative AI" },
+  { term: "PPO (Proximal Policy Optimization)", desc: "Thuật toán học tăng cường tối ưu chính sách, đóng vai trò nền tảng trong quy trình căn chỉnh RLHF cho ChatGPT.", category: "Reinforcement Learning" },
+  { term: "Overfitting", desc: "Hiện tượng mô hình học vẹt cả nhiễu của tập Train, dẫn đến Train Loss cực thấp nhưng Validation Loss tăng vọt.", category: "Evaluation" }
 ];
